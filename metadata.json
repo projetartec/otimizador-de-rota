@@ -1,0 +1,5 @@
+{
+  "name": "Rota Otimizada",
+  "description": "Otimizador de rotas com múltiplas paradas baseado em proximidade, utilizando mapas e geocodificação gratuita.",
+  "requestFramePermissions": ["geolocation"]
+}

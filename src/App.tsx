@@ -5,7 +5,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence, Reorder } from "motion/react";
-import { Plus, Trash2, MapPin, Navigation, Loader2, Info, Share2, GripVertical, Copy, Check } from "lucide-react";
+import { Plus, Trash2, MapPin, Navigation, Loader2, Info, Share2, GripVertical, Copy, Check, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -138,6 +138,17 @@ export default function App() {
     setTimeout(() => setIsCopied(false), 2000);
   };
 
+  const resetRoute = () => {
+    setStartAddress("");
+    setStopAddresses([""]);
+    setStartLocation(null);
+    setOptimizedStops([]);
+    setError(null);
+    setLastAddedIndex(null);
+    setShareUrl("");
+    toast.info("Dados resetados com sucesso");
+  };
+
   return (
     <div className="flex flex-col md:flex-row h-screen bg-zinc-950 text-zinc-100 overflow-hidden md:overflow-hidden">
       <Toaster position="top-center" richColors theme="dark" />
@@ -182,12 +193,23 @@ export default function App() {
       </Dialog>
       {/* Sidebar */}
       <div className="w-full md:w-96 border-r border-zinc-800 flex flex-col h-[60vh] md:h-full bg-zinc-900/50 shrink-0">
-        <CardHeader className="border-b border-zinc-800 pb-4">
-          <CardTitle className="flex items-center gap-2 text-xl font-bold tracking-tight">
-            <Navigation className="w-6 h-6 text-blue-500" />
-            Otimizador de Rota
-          </CardTitle>
-          <p className="text-xs text-zinc-400">Otimize seu percurso com facilidade</p>
+        <CardHeader className="border-b border-zinc-800 pb-4 flex flex-row items-center justify-between space-y-0">
+          <div>
+            <CardTitle className="flex items-center gap-2 text-xl font-bold tracking-tight">
+              <Navigation className="w-6 h-6 text-blue-500" />
+              Otimizador de Rota
+            </CardTitle>
+            <p className="text-xs text-zinc-400">Otimize seu percurso com facilidade</p>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={resetRoute}
+            title="Resetar tudo"
+            className="text-zinc-500 hover:text-red-400 hover:bg-red-500/10"
+          >
+            <RotateCcw className="w-4 h-4" />
+          </Button>
         </CardHeader>
 
         <div className="flex-1 overflow-y-auto p-4 min-h-0 custom-scrollbar">

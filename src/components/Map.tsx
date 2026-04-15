@@ -33,6 +33,31 @@ function ChangeView({ center, zoom }: { center: [number, number], zoom: number }
   return null;
 }
 
+// Custom icon generator
+const createNumberedIcon = (number: string | number, isStart: boolean = false) => {
+  const bgColor = isStart ? '#10b981' : '#3b82f6'; // Green for start, Blue for stops
+  return L.divIcon({
+    html: `<div style="
+      background-color: ${bgColor}; 
+      color: white; 
+      width: 28px; 
+      height: 28px; 
+      border-radius: 50%; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      font-size: 12px; 
+      font-weight: bold; 
+      border: 2px solid white; 
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      transform: translate(-2px, -2px);
+    ">${number}</div>`,
+    className: 'custom-div-icon',
+    iconSize: [28, 28],
+    iconAnchor: [14, 14],
+  });
+};
+
 export default function Map({ start, stops }: MapProps) {
   const defaultCenter: [number, number] = [-23.5505, -46.6333]; // São Paulo
   const center: [number, number] = start ? [start.lat, start.lng] : defaultCenter;
@@ -54,7 +79,10 @@ export default function Map({ start, stops }: MapProps) {
       />
       
       {start && (
-        <Marker position={[start.lat, start.lng]}>
+        <Marker 
+          position={[start.lat, start.lng]} 
+          icon={createNumberedIcon('S', true)}
+        >
           <Popup>
             <div className="font-bold">Ponto de Partida</div>
             <div className="text-xs">{start.address}</div>
@@ -63,7 +91,11 @@ export default function Map({ start, stops }: MapProps) {
       )}
 
       {stops.map((stop, index) => (
-        <Marker key={index} position={[stop.lat, stop.lng]}>
+        <Marker 
+          key={index} 
+          position={[stop.lat, stop.lng]}
+          icon={createNumberedIcon(index + 1)}
+        >
           <Popup>
             <div className="font-bold">Parada {index + 1}</div>
             <div className="text-xs">{stop.address}</div>

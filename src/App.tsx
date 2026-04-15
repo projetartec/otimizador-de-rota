@@ -197,7 +197,7 @@ export default function App() {
           <div>
             <CardTitle className="flex items-center gap-2 text-xl font-bold tracking-tight">
               <Navigation className="w-6 h-6 text-blue-500" />
-              Otimizador de Rota
+              ROTAS
             </CardTitle>
             <p className="text-xs text-zinc-400">Otimize seu percurso com facilidade</p>
           </div>

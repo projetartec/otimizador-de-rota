@@ -1,5 +1,5 @@
 {
-  "name": "Otimizador de Rota GPS",
+  "name": "ROTAS",
   "description": "Otimizador de rotas com múltiplas paradas baseado em proximidade, utilizando mapas e geocodificação gratuita.",
   "requestFramePermissions": ["geolocation"]
 }

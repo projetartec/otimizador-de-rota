@@ -8,26 +8,32 @@ export async function geocode(address: string): Promise<Location | null> {
   if (!address.trim()) return null;
 
   try {
-    // Nominatim API (OpenStreetMap)
+    // Photon API (Powered by OpenStreetMap data, but with better search logic)
     const response = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-        address
-      )}&countrycodes=br&limit=1&addressdetails=1`,
-      {
-        headers: {
-          "Accept-Language": "pt-BR",
-          "User-Agent": "RotaOtimizadaApp/1.0"
-        },
-      }
+      `https://photon.komoot.io/api/?q=${encodeURIComponent(address)}&limit=1&lang=pt`
     );
 
     const data = await response.json();
 
-    if (data && data.length > 0) {
+    if (data && data.features && data.features.length > 0) {
+      const feature = data.features[0];
+      const { coordinates } = feature.geometry;
+      const p = feature.properties;
+      
+      // Construct a readable address from properties
+      const parts = [
+        p.name || p.street,
+        p.housenumber,
+        p.district || p.locality,
+        p.city,
+        p.state,
+        p.postcode
+      ].filter(Boolean);
+
       return {
-        lat: parseFloat(data[0].lat),
-        lng: parseFloat(data[0].lon),
-        address: data[0].display_name,
+        lat: coordinates[1],
+        lng: coordinates[0],
+        address: parts.join(", ") || p.name || address,
       };
     }
   } catch (error) {
@@ -42,19 +48,22 @@ export async function getAutocompleteSuggestions(query: string): Promise<string[
 
   try {
     const response = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-        query
-      )}&countrycodes=br&limit=5&addressdetails=1`,
-      {
-        headers: {
-          "Accept-Language": "pt-BR",
-          "User-Agent": "RotaOtimizadaApp/1.0"
-        },
-      }
+      `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5&lang=pt`
     );
 
     const data = await response.json();
-    return data.map((item: any) => item.display_name);
+    
+    return data.features.map((feature: any) => {
+      const p = feature.properties;
+      const parts = [
+        p.name || p.street,
+        p.housenumber,
+        p.district || p.locality,
+        p.city,
+        p.state
+      ].filter(Boolean);
+      return parts.join(", ");
+    });
   } catch (error) {
     console.error("Autocomplete error:", error);
     return [];

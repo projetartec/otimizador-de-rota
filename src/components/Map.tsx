@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { OptimizedStop } from '../lib/optimization';
@@ -23,6 +23,7 @@ L.Marker.prototype.options.icon = DefaultIcon;
 interface MapProps {
   start: Location | null;
   stops: OptimizedStop[];
+  onMapClick?: (lat: number, lng: number) => void;
 }
 
 function ChangeView({ center, zoom }: { center: [number, number], zoom: number }) {
@@ -30,6 +31,17 @@ function ChangeView({ center, zoom }: { center: [number, number], zoom: number }
   useEffect(() => {
     map.setView(center, zoom);
   }, [center, zoom, map]);
+  return null;
+}
+
+function MapEvents({ onMapClick }: { onMapClick?: (lat: number, lng: number) => void }) {
+  useMapEvents({
+    click(e) {
+      if (onMapClick) {
+        onMapClick(e.latlng.lat, e.latlng.lng);
+      }
+    },
+  });
   return null;
 }
 
@@ -58,7 +70,7 @@ const createNumberedIcon = (number: string | number, isStart: boolean = false) =
   });
 };
 
-export default function Map({ start, stops }: MapProps) {
+export default function Map({ start, stops, onMapClick }: MapProps) {
   const defaultCenter: [number, number] = [-23.5505, -46.6333]; // São Paulo
   const center: [number, number] = start ? [start.lat, start.lng] : defaultCenter;
 
@@ -73,6 +85,7 @@ export default function Map({ start, stops }: MapProps) {
       style={{ height: '100%', width: '100%', borderRadius: '0.5rem' }}
       className="z-0"
     >
+      <MapEvents onMapClick={onMapClick} />
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
         url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"

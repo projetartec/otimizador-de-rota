@@ -23,7 +23,7 @@ import {
 import { toast, Toaster } from "sonner";
 import Map from "./components/Map";
 import { AddressInput } from "./components/AddressInput";
-import { geocode, Location } from "./lib/geocoding";
+import { geocode, Location, reverseGeocode } from "./lib/geocoding";
 import { optimizeRoute, OptimizedStop } from "./lib/optimization";
 
 export default function App() {
@@ -136,6 +136,28 @@ export default function App() {
     setIsCopied(true);
     toast.success("Link copiado para a área de transferência!");
     setTimeout(() => setIsCopied(false), 2000);
+  };
+
+  const handleMapClick = async (lat: number, lng: number) => {
+    const address = await reverseGeocode(lat, lng);
+    if (!address) return;
+
+    if (!startAddress) {
+      setStartAddress(address);
+      toast.success("Ponto de partida definido pelo mapa");
+    } else {
+      // Find the first empty stop or add a new one
+      const emptyStopIndex = stopAddresses.findIndex(s => !s.trim());
+      if (emptyStopIndex !== -1) {
+        const newStops = [...stopAddresses];
+        newStops[emptyStopIndex] = address;
+        setStopAddresses(newStops);
+        toast.success(`Parada definida pelo mapa`);
+      } else {
+        setStopAddresses([...stopAddresses, address]);
+        toast.success(`Nova parada adicionada pelo mapa`);
+      }
+    }
   };
 
   const resetRoute = () => {
@@ -375,22 +397,7 @@ export default function App() {
 
       {/* Map Area */}
       <div className="flex-1 relative bg-zinc-950">
-        <Map start={startLocation} stops={optimizedStops} />
-        
-        {/* Map Overlay Info */}
-        {!startLocation && (
-          <div className="absolute inset-0 flex items-center justify-center bg-zinc-950/50 backdrop-blur-sm z-10 pointer-events-none">
-            <div className="text-center p-8 max-w-md">
-              <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Navigation className="w-8 h-8 text-blue-500" />
-              </div>
-              <h2 className="text-xl font-bold mb-2">Pronto para começar?</h2>
-              <p className="text-zinc-400 text-sm">
-                Insira o ponto de partida e as paradas desejadas para visualizar sua rota otimizada no mapa.
-              </p>
-            </div>
-          </div>
-        )}
+        <Map start={startLocation} stops={optimizedStops} onMapClick={handleMapClick} />
       </div>
     </div>
   );
